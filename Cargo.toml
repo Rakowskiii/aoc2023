@@ -1,0 +1,8 @@
+author = "Maciej Rak <maciejrak@protonmail.com>"
+
+[workspace]
+resolver = "2"
+members = [
+    "day1",
+    "utils"
+]
