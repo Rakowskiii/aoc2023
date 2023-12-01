@@ -1,5 +1,3 @@
-use anyhow::anyhow;
-
 fn main() -> anyhow::Result<()>{
     let inputs = std::fs::read_to_string("input.txt")?;
     println!("The calibration is: {}", calibration(&inputs));

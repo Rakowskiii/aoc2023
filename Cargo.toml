@@ -1,6 +1,5 @@
-author = "Maciej Rak <maciejrak@protonmail.com>"
-
 [workspace]
+authors = ["Maciej Rak <maciejrak@protonmail.com>"]
 resolver = "2"
 members = [
     "day1",
