@@ -3,5 +3,7 @@ authors = ["Maciej Rak <maciejrak@protonmail.com>"]
 resolver = "2"
 members = [
     "day1",
+    "day2",
+    "day3",
     "utils"
 ]

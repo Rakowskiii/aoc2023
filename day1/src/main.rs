@@ -1,5 +1,7 @@
+use std::io::BufRead;
+
 fn main() -> anyhow::Result<()>{
-    let inputs = std::fs::read_to_string("input.txt")?;
+    let inputs = std::fs::read_to_string("./data/input.txt")?;
     println!("The calibration is: {}", calibration(&inputs));
     println!("The numberized calibration is: {}", calibration(&numberize(inputs)));
     Ok(())
@@ -7,14 +9,14 @@ fn main() -> anyhow::Result<()>{
 
 #[test]
 fn test_calibration() -> anyhow::Result<()>{
-    let inputs = std::fs::read_to_string("test_input.txt")?;
+    let inputs = std::fs::read_to_string("data/test_input.txt")?;
     dbg!(calibration(&inputs));
     Ok(())
 }
 
 #[test]
 fn test_calibration_spelled() -> anyhow::Result<()>{
-    let inputs = std::fs::read_to_string("test_input_spelled.txt")?;
+    let inputs = std::fs::read_to_string("data/test_input_spelled.txt")?;
     dbg!(calibration(&numberize(inputs)));
     Ok(())
 }

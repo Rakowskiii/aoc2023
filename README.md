@@ -7,6 +7,8 @@ Welcome to my repository of solutions for [Advent of Code 2023](https://adventof
 Each day's folder contains two parts of the challenge. A ⭐️ indicates completion of part 1, while a 🌟 signifies that part 2 is also complete.
 
 - **Day 1**: [Solution](/day1) 🌟
+- **Day 2**: [Solution](/day2) 🌟
+- **Day 3**: [Solution](/day3) 🌟
 
 
 ## Utils
