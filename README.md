@@ -9,6 +9,7 @@ Each day's folder contains two parts of the challenge. A ⭐️ indicates comple
 - **Day 1**: [Solution](/day1) 🌟
 - **Day 2**: [Solution](/day2) 🌟
 - **Day 3**: [Solution](/day3) 🌟
+- **Day 4**: [Solution](/day4) 🌟
 
 
 ## Utils
