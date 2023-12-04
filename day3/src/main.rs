@@ -148,25 +148,30 @@ impl EngineProcessor {
     fn get_engine_sum(&self) -> u32 {
         self.parts
             .iter()
-            .filter_map(|(_, part)| if part.neighbored { part.digits.parse::<u32>().ok() } else { None })
+            .filter_map(|(_, part)| {
+                if part.neighbored {
+                    part.digits.parse::<u32>().ok()
+                } else {
+                    None
+                }
+            })
             .sum()
     }
 
-    fn get_part_digits(&self, part_id: &PartId) -> Option<u32> {
-        self.parts.get( part_id).and_then(|part| part.digits.parse::<u32>().ok())
+    fn get_part_digits(&self, part_id: PartId) -> Option<u32> {
+        self.parts
+            .get(&part_id)
+            .and_then(|part| part.digits.parse::<u32>().ok())
     }
 
-    fn get_gear_sum(&self) -> u32{
+    fn get_gear_sum(&self) -> u32 {
         let find_gears_values = |ids: &HashSet<u32>| {
             ids.iter()
-                .filter_map(|id| self.get_part_digits(id))
-                .fold(1, |x, acc| x*acc)
+                .filter_map(|id| self.get_part_digits(*id))
+                .product::<u32>()
         };
 
-        self.gears
-            .values()
-            .map(find_gears_values)
-            .sum()
+        self.gears.values().map(find_gears_values).sum()
     }
 }
 
@@ -175,4 +180,4 @@ struct Neighbor {
     position: Position,
 }
 
-type Position = (usize,usize);
+type Position = (usize, usize);
