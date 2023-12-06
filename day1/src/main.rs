@@ -1,4 +1,3 @@
-
 fn main() -> anyhow::Result<()> {
     let inputs = std::fs::read_to_string("./data/input.txt")?;
     println!("The calibration is: {}", calibration(&inputs));
@@ -34,8 +33,7 @@ fn calibration(document: &str) -> u32 {
             // So first is always Some
             first.unwrap() * 10 + last.unwrap()
         })
-        .reduce(|a, b| a + b)
-        .unwrap()
+        .sum()
 }
 
 fn numberize(spelled: &str) -> String {
