@@ -1,0 +1,12 @@
+[package]
+name = "day6"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1.10.2"
+once_cell = { version = "1.18.0", features = [] }
+anyhow = "1.0.75"
+utils = {path = "../utils"}

@@ -10,28 +10,28 @@ fn main() {
     let input = std::fs::read_to_string("data/input.txt").unwrap();
     println!(
         "Part 1: {}",
-        lowest_location_number::<SimpleParser, Converter>(&input)
-    );
-    println!(
-        "Part 2: {}",
         lowest_location_number::<RangeParser, Converter>(&input)
     );
+    // println!(
+    //     "Part 2: {}",
+    //     lowest_location_number::<RangeParser, Converter>(&input)
+    // );
 }
 
-#[test]
-fn test_lowest_location_number() {
-    let input = std::fs::read_to_string("data/test.txt").unwrap();
-    assert_eq!(
-        35,
-        lowest_location_number::<SimpleParser, Converter>(&input)
-    );
-}
-
-#[test]
-fn test_lowest_location_number_range() {
-    let input = std::fs::read_to_string("data/test.txt").unwrap();
-    assert_eq!(46, lowest_location_number::<RangeParser, Converter>(&input));
-}
+// #[test]
+// fn test_lowest_location_number() {
+//     let input = std::fs::read_to_string("data/test.txt").unwrap();
+//     assert_eq!(
+//         35,
+//         lowest_location_number::<SimpleParser, Converter>(&input)
+//     );
+// }
+//
+// #[test]
+// fn test_lowest_location_number_range() {
+//     let input = std::fs::read_to_string("data/test.txt").unwrap();
+//     assert_eq!(46, lowest_location_number::<RangeParser, Converter>(&input));
+// }
 
 trait SeedParser {
     fn parse_seeds(seed: &str) -> Seeds;
@@ -52,16 +52,18 @@ fn lowest_location_number<S: SeedParser, C: Applicable + Sync + Debug>(input: &s
         .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos:>7}/{len:7} ({eta})")
         .unwrap().progress_chars("#>-"));
 
-    let result = seeds
-        .into_par_iter()
-        .map_with(progress.clone(), |progress, seed| {
-            let result = converter.apply(seed);
-            progress.fetch_add(1, Ordering::SeqCst);
-            pb.inc(1); // Update progress bar
-            result
-        })
-        .min()
-        .unwrap();
+    // let result = seeds
+    //     .into_par_iter()
+    //     .map_with(progress.clone(), |progress, seed| {
+    //         let result = converter.apply(seed);
+    //         progress.fetch_add(1, Ordering::SeqCst);
+    //         pb.inc(1); // Update progress bar
+    //         result
+    //     })
+    //     .min()
+    //     .unwrap();
+
+    let result = converter.apply(seeds);
 
     pb.finish_with_message("Done");
 
@@ -79,22 +81,24 @@ fn lowest_location_number_bck<S: SeedParser, C: Applicable + Sync + Debug>(input
     let progress = Arc::new(AtomicUsize::new(0));
     let total = seeds.len();
     let pb = ProgressBar::new(total as u64);
-    pb.set_style(ProgressStyle::default_bar()
-        .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos:>7}/{len:7} ({eta})")
-        .unwrap().progress_chars("#>-"));
+    // pb.set_style(ProgressStyle::default_bar()
+    //     .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos:>7}/{len:7} ({eta})")
+    //     .unwrap().progress_chars("#>-"));
 
-    let result = seeds
-        .into_par_iter()
-        .map_with(progress.clone(), |progress, seed| {
-            let result = converter.apply(seed);
-            progress.fetch_add(1, Ordering::SeqCst);
-            pb.inc(1); // Update progress bar
-            result
-        })
-        .min()
-        .unwrap();
+    // let result = seeds
+    //     .into_par_iter()
+    //     .map_with(progress.clone(), |progress, seed| {
+    //         let result = converter.apply(seed);
+    //         progress.fetch_add(1, Ordering::SeqCst);
+    //         pb.inc(1); // Update progress bar
+    //         result
+    //     })
+    //     .min()
+    //     .unwrap();
 
-    pb.finish_with_message("Done");
+    let result = converter.apply(seeds);
+
+    // pb.finish_with_message("Done");
 
     result
 }
@@ -104,14 +108,14 @@ static SEED_REGEX: once_cell::sync::Lazy<regex::Regex> =
 struct RangeParser;
 struct SimpleParser;
 
-impl SeedParser for SimpleParser {
-    fn parse_seeds(seed: &str) -> Seeds {
-        SEED_REGEX
-            .find_iter(seed)
-            .filter_map(|number| number.as_str().parse::<i64>().ok())
-            .collect()
-    }
-}
+// impl SeedParser for SimpleParser {
+//     fn parse_seeds(seed: &str) -> Seeds {
+//         SEED_REGEX
+//             .find_iter(seed)
+//             .filter_map(|number| number.as_str().parse::<i64>().ok())
+//             .collect()
+//     }
+// }
 
 impl SeedParser for RangeParser {
     fn parse_seeds(seed: &str) -> Seeds {
@@ -119,16 +123,11 @@ impl SeedParser for RangeParser {
         let mut fixed = seed.trim_start_matches("seeds: ").split_whitespace();
         while let (Some(range_start), Some(len)) = (fixed.next(), fixed.next()) {
             if let (Ok(range_start), Ok(len)) = (range_start.parse::<i64>(), len.parse::<i64>()) {
-                seeds.extend((range_start..range_start + len).into_iter());
-                println!("Extended to: {}", seeds.len());
+            //     seeds.extend((range_start..range_start + len).into_iter());
+            //     println!("Extended to: {}", seeds.len());
+                seeds.push(range_start..range_start+len)
             }
         }
-        // println!("amount of seeds: {}", seeds.len());
-        // let seeds: Vec<i64> = HashSet::<i64>::from_iter(seeds.into_iter()).into_iter().collect();
-        // println!("amount of seeds after join: {}", seeds.len());
-        // seeds.sort();
-        // println!("Sorted seeds");
-        // seeds.dedup();
         println!("Reduced seeds to {}", seeds.len());
         seeds
     }
@@ -140,24 +139,29 @@ type Converter = Vec<Vec<(std::ops::Range<i64>, Transformation)>>;
 static CONVERT_REGEX: once_cell::sync::Lazy<regex::Regex> =
     once_cell::sync::Lazy::new(|| regex::Regex::new(r"(?<map>((\d+) (\d+) (\d+)\n*)+)").unwrap());
 
-type Seeds = Vec<i64>;
+type Seeds = Vec<std::ops::Range<i64>>;
 
 trait Applicable {
-    fn apply(&self, seed: i64) -> i64;
+    fn apply(&self, seeds: Seeds) -> i64;
     fn parse(input: &str) -> Self;
 }
 
 impl Applicable for Converter {
-    fn apply(&self, mut seed: i64) -> i64 {
-        'maps: for map in self {
-            for (range, transformation) in map {
-                if range.contains(&seed) {
-                    seed += transformation;
-                    continue 'maps;
-                }
-            }
+    fn apply(&self, mut seeds: Seeds) -> i64 {
+        // 'maps: for map in self {
+        //     for (range, transformation) in map {
+        //         if range.contains(&seed) {
+        //             seed += transformation;
+        //             continue 'maps;
+        //         }
+        //     }
+        // }
+        // seed
+        for map in self {
+
         }
-        seed
+
+        todo!()
     }
     fn parse(input: &str) -> Converter {
         let mut converter = Converter::new();
@@ -184,131 +188,131 @@ impl Applicable for Converter {
         converter
     }
 }
-
-impl Applicable for BetterConverter {
-    fn apply(&self, seed: i64) -> i64 {
-        for map in self {
-            if map.range.contains(&seed) {
-                return seed + map.transformation;
-            }
-        }
-        return seed;
-    }
-
-    fn parse(_: &str) -> BetterConverter {
-        let maps: Vec<Vec<Map<i64>>> = MAPS
-            .clone()
-            .into_iter()
-            .map(|map| {
-                let mut unsorted: Vec<Map<i64>> = map
-                    .into_iter()
-                    .map(|[dst, src, len]| Map {
-                        range: src..src + len,
-                        transformation: dst - src,
-                    })
-                    .collect();
-                unsorted.sort_by(|this, other| this.range.start.cmp(&other.range.start));
-                unsorted
-            })
-            .collect();
-
-        let ret = maps
-            .into_iter()
-            .reduce(|mut broken_apart, mut maps| {
-                dbg!(&broken_apart);
-                let mut i = 0;
-                loop {
-                    let mut leftover: Option<Map<i64>> = None;
-                    let Some(mut new_map) = maps.pop() else {
-                        break;
-                    };
-
-                    while leftover.is_some() || i < broken_apart.len() {
-                        let Some(mut map) = (if leftover.is_some() {
-                            let ret = leftover;
-                            leftover = None;
-                            ret
-                        } else {
-                            broken_apart.get_mut(i).cloned()
-                        }) else {
-                            break;
-                        };
-                        dbg!(&map);
-                        dbg!(&broken_apart);
-                        // ---------------[..new_map..]------
-                        // ---[....map....]-------------------
-                        if &new_map.range.start >= &map.range.end {
-                            i += 1;
-                            continue;
-                        }
-
-                        // ---------------[....map....]------
-                        // ---[..new_map..]-------------------
-                        if &new_map.range.end <= &map.range.start {
-                            broken_apart.insert(i, new_map);
-                            i+=1;
-                            break;
-                        }
-
-                        // -----------[....map....]---------
-                        // ---[..new_map..]-----------------
-                        if &new_map.range.start <= &map.range.start {
-                            broken_apart.insert(
-                                i,
-                                Map {
-                                    range: map.range.start..new_map.range.end,
-                                    transformation: new_map.transformation + map.transformation,
-                                },
-                            );
-                            broken_apart.insert(
-                                i,
-                                Map {
-                                    range: new_map.range.start..map.range.start,
-                                    transformation: new_map.transformation,
-                                },
-                            );
-                            map.range.start = new_map.range.end;
-                            i+=2;
-                            leftover = Some(Map {
-                                range: new_map.range.end..map.range.end,
-                                transformation: map.transformation,
-                            });
-                        }
-
-                        // -----------[..new_map..]---------
-                        // ---[....map....]-----------------
-                        if &new_map.range.start >= &map.range.start {
-                            i+=2;
-                            broken_apart.insert(
-                                i,
-                                Map {
-                                    range: new_map.range.start..map.range.end,
-                                    transformation: new_map.transformation + map.transformation,
-                                },
-                            );
-                            broken_apart.insert(
-                                i,
-                                Map {
-                                    range: map.range.start..new_map.range.start,
-                                    transformation: map.transformation,
-                                },
-                            );
-                            map.range.end = new_map.range.start;
-                            leftover = Some(Map {
-                                range: map.range.end..new_map.range.end,
-                                transformation: new_map.transformation,
-                            });
-                        }
-                    }
-                }
-                broken_apart.sort_by(|this, other| this.range.start.cmp(&other.range.start));
-                broken_apart
-            })
-            .unwrap();
-        ret
-    }
-}
-
+//
+// impl Applicable for BetterConverter {
+//     fn apply(&self, seed: i64) -> i64 {
+//         for map in self {
+//             if map.range.contains(&seed) {
+//                 return seed + map.transformation;
+//             }
+//         }
+//         return seed;
+//     }
+//
+//     fn parse(_: &str) -> BetterConverter {
+//         let maps: Vec<Vec<Map<i64>>> = MAPS
+//             .clone()
+//             .into_iter()
+//             .map(|map| {
+//                 let mut unsorted: Vec<Map<i64>> = map
+//                     .into_iter()
+//                     .map(|[dst, src, len]| Map {
+//                         range: src..src + len,
+//                         transformation: dst - src,
+//                     })
+//                     .collect();
+//                 unsorted.sort_by(|this, other| this.range.start.cmp(&other.range.start));
+//                 unsorted
+//             })
+//             .collect();
+//
+//         let ret = maps
+//             .into_iter()
+//             .reduce(|mut broken_apart, mut maps| {
+//                 dbg!(&broken_apart);
+//                 let mut i = 0;
+//                 loop {
+//                     let mut leftover: Option<Map<i64>> = None;
+//                     let Some(mut new_map) = maps.pop() else {
+//                         break;
+//                     };
+//
+//                     while leftover.is_some() || i < broken_apart.len() {
+//                         let Some(mut map) = (if leftover.is_some() {
+//                             let ret = leftover;
+//                             leftover = None;
+//                             ret
+//                         } else {
+//                             broken_apart.get_mut(i).cloned()
+//                         }) else {
+//                             break;
+//                         };
+//                         dbg!(&map);
+//                         dbg!(&broken_apart);
+//                         // ---------------[..new_map..]------
+//                         // ---[....map....]-------------------
+//                         if &new_map.range.start >= &map.range.end {
+//                             i += 1;
+//                             continue;
+//                         }
+//
+//                         // ---------------[....map....]------
+//                         // ---[..new_map..]-------------------
+//                         if &new_map.range.end <= &map.range.start {
+//                             broken_apart.insert(i, new_map);
+//                             i+=1;
+//                             break;
+//                         }
+//
+//                         // -----------[....map....]---------
+//                         // ---[..new_map..]-----------------
+//                         if &new_map.range.start <= &map.range.start {
+//                             broken_apart.insert(
+//                                 i,
+//                                 Map {
+//                                     range: map.range.start..new_map.range.end,
+//                                     transformation: new_map.transformation + map.transformation,
+//                                 },
+//                             );
+//                             broken_apart.insert(
+//                                 i,
+//                                 Map {
+//                                     range: new_map.range.start..map.range.start,
+//                                     transformation: new_map.transformation,
+//                                 },
+//                             );
+//                             map.range.start = new_map.range.end;
+//                             i+=2;
+//                             leftover = Some(Map {
+//                                 range: new_map.range.end..map.range.end,
+//                                 transformation: map.transformation,
+//                             });
+//                         }
+//
+//                         // -----------[..new_map..]---------
+//                         // ---[....map....]-----------------
+//                         if &new_map.range.start >= &map.range.start {
+//                             i+=2;
+//                             broken_apart.insert(
+//                                 i,
+//                                 Map {
+//                                     range: new_map.range.start..map.range.end,
+//                                     transformation: new_map.transformation + map.transformation,
+//                                 },
+//                             );
+//                             broken_apart.insert(
+//                                 i,
+//                                 Map {
+//                                     range: map.range.start..new_map.range.start,
+//                                     transformation: map.transformation,
+//                                 },
+//                             );
+//                             map.range.end = new_map.range.start;
+//                             leftover = Some(Map {
+//                                 range: map.range.end..new_map.range.end,
+//                                 transformation: new_map.transformation,
+//                             });
+//                         }
+//                     }
+//                 }
+//                 broken_apart.sort_by(|this, other| this.range.start.cmp(&other.range.start));
+//                 broken_apart
+//             })
+//             .unwrap();
+//         ret
+//     }
+// }
+//
 type BetterConverter = Vec<Map<i64>>;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
