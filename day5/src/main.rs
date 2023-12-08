@@ -12,10 +12,10 @@ fn main() {
         "Part 1: {}",
         lowest_location_number::<RangeParser, Converter>(&input)
     );
-    // println!(
-    //     "Part 2: {}",
-    //     lowest_location_number::<RangeParser, Converter>(&input)
-    // );
+    println!(
+        "Part 2: {}",
+        lowest_location_number::<RangeParser, Converter>(&input)
+    );
 }
 
 // #[test]
@@ -52,16 +52,16 @@ fn lowest_location_number<S: SeedParser, C: Applicable + Sync + Debug>(input: &s
         .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos:>7}/{len:7} ({eta})")
         .unwrap().progress_chars("#>-"));
 
-    // let result = seeds
-    //     .into_par_iter()
-    //     .map_with(progress.clone(), |progress, seed| {
-    //         let result = converter.apply(seed);
-    //         progress.fetch_add(1, Ordering::SeqCst);
-    //         pb.inc(1); // Update progress bar
-    //         result
-    //     })
-    //     .min()
-    //     .unwrap();
+    let result = seeds
+        .into_par_iter()
+        .map_with(progress.clone(), |progress, seed| {
+            let result = converter.apply(seed);
+            progress.fetch_add(1, Ordering::SeqCst);
+            pb.inc(1); // Update progress bar
+            result
+        })
+        .min()
+        .unwrap();
 
     let result = converter.apply(seeds);
 

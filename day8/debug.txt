@@ -1,0 +1,1 @@
+   Compiling day8 v0.1.0 (/Users/mrak/projects/aoc2023/day8)
