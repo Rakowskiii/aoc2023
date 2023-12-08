@@ -9,4 +9,3 @@ edition = "2021"
 regex = "1.10.2"
 once_cell = { version = "1.18.0", features = [] }
 anyhow = "1.0.75"
-utils = {path = "../utils"}
